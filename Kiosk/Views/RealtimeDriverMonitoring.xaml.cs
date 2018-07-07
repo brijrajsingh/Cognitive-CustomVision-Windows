@@ -236,7 +236,14 @@ namespace IntelligentKioskSample.Views
             this.highLatencyWarning.Visibility = latency.TotalSeconds <= 3 ? Visibility.Collapsed : Visibility.Visible;
 
             string desc = e.AnalysisResult.Description?.Captions?[0].Text;
-            bool distractionDetected = desc.Contains("phone") || desc.Contains("banana");
+
+            bool distractionDetected = false;
+
+            if (desc != null)
+            {
+                distractionDetected = desc.Contains("phone") || desc.Contains("banana") || (desc.Length > 0);
+            }
+
             this.distractionChart.DrawDataPoint(distractionDetected ? 1 : 0.02,
                                                 distractionDetected ? BarChartAlertColor : BarChartColor,
                                                 await GetFaceCropAsync(e),

@@ -75,7 +75,23 @@
                         <ComboBox Grid.Column="1" Margin="10,0,6,0" Header="Region" ItemsSource="{Binding AvailableApiRegions}" SelectedItem="{Binding TextAnalyticsApiKeyRegion, Mode=TwoWay}"/>
                     </Grid>
 
-                </StackPanel>
+					<Grid Margin="0,10,0,0">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition/>
+							<ColumnDefinition Width="auto"/>
+						</Grid.ColumnDefinitions>
+						<PasswordBox Header="Custom vision Object Detection Prediction Key" Password="{Binding CustomVisionObjectDetectionPredictionKey, Mode=TwoWay}" />
+					</Grid>
+
+					<Grid Margin="0,10,0,0">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition/>
+							<ColumnDefinition Width="auto"/>
+						</Grid.ColumnDefinitions>
+						<PasswordBox Header="Custom vision Object Detection Project Id" Password="{Binding CustomVisionObjectDetectionProjectId, Mode=TwoWay}" />
+					</Grid>
+
+				</StackPanel>
 
                 <StackPanel Margin="0,50,0,0">
                     <TextBlock Text="Miscellaneous" Style="{StaticResource SubheaderTextBlockStyle}"/>

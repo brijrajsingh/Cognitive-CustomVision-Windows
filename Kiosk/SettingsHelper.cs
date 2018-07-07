@@ -207,6 +207,18 @@ namespace IntelligentKioskSample
                 this.CustomVisionTrainingApiKey = value.ToString();
             }
 
+            value = ApplicationData.Current.RoamingSettings.Values["CustomVisionObjectDetectionPredictionKey"];
+            if(value != null)
+            {
+                this.CustomVisionObjectDetectionPredictionKey = value.ToString();
+            }
+
+            value = ApplicationData.Current.RoamingSettings.Values["CustomVisionObjectDetectionProjectId"];
+            if (value != null)
+            {
+                this.CustomVisionObjectDetectionProjectId = value.ToString();
+            }
+
             // load mall kiosk demo custom settings from file as the content is too big to be saved as a string-like setting
             try
             {
@@ -388,6 +400,7 @@ namespace IntelligentKioskSample
             }
         }
 
+
         private string customVisionPredictionApiKey = string.Empty;
         public string CustomVisionPredictionApiKey
         {
@@ -398,6 +411,37 @@ namespace IntelligentKioskSample
                 this.OnSettingChanged("CustomVisionPredictionApiKey", value);
             }
         }
+
+        private string customVisionObjectDetectionPredictionKey = string.Empty;
+
+        public string CustomVisionObjectDetectionPredictionKey
+        {
+            get
+            {
+                return this.customVisionObjectDetectionPredictionKey;
+            }
+            set
+            {
+                this.customVisionObjectDetectionPredictionKey = value;
+                this.OnSettingChanged("CustomVisionObjectDetectionPredictionKey", value);
+            }
+        }
+
+        private string customVisionObjectDetectionProjectId= string.Empty;
+
+        public string CustomVisionObjectDetectionProjectId
+        {
+            get
+            {
+                return this.customVisionObjectDetectionProjectId;
+            }
+            set
+            {
+                this.customVisionObjectDetectionProjectId = value;
+                this.OnSettingChanged("CustomVisionObjectDetectionProjectId", value);
+            }
+        }
+
 
         public string[] AvailableApiRegions
         {

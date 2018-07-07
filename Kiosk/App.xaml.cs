@@ -97,6 +97,8 @@ namespace IntelligentKioskSample
                     ImageAnalyzer.PeopleGroupsUserDataFilter = SettingsHelper.Instance.WorkspaceKey;
                     FaceListManager.FaceListsUserDataFilter = SettingsHelper.Instance.WorkspaceKey;
                     CoreUtil.MinDetectableFaceCoveragePercentage = SettingsHelper.Instance.MinDetectableFaceCoveragePercentage;
+                    CustomObjectDetectionHelper.PredictionApiKey = SettingsHelper.Instance.CustomVisionObjectDetectionPredictionKey;
+                    CustomObjectDetectionHelper.ProjectId = SettingsHelper.Instance.CustomVisionObjectDetectionProjectId;
                 };
 
                 // callbacks for core library

@@ -43,6 +43,9 @@ using System.Collections.Generic;
 using System.IO;
 using ServiceHelpers;
 using Newtonsoft.Json.Linq;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -160,6 +163,14 @@ namespace IntelligentKioskSample.Controls
             new PropertyMetadata(false)
             );
 
+        public static readonly DependencyProperty DetectObjectLandMarksProperty =
+           DependencyProperty.Register(
+           "DetectObjectLandMarks",
+           typeof(bool),
+           typeof(ImageWithFaceBorderUserControl),
+           new PropertyMetadata(false)
+           );
+
         public SolidColorBrush BalloonBackground
         {
             get { return (SolidColorBrush)GetValue(BalloonBackgroundProperty); }
@@ -230,6 +241,12 @@ namespace IntelligentKioskSample.Controls
         {
             get { return (bool)GetValue(PerformOCRAnalysisProperty); }
             set { SetValue(PerformOCRAnalysisProperty, (bool)value); }
+        }
+
+        public bool DetectObjectLandMarks
+        {
+            get { return (bool)GetValue(DetectObjectLandMarksProperty); }
+            set { SetValue(DetectObjectLandMarksProperty, (bool)value); }
         }
 
         private async void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
@@ -548,6 +565,11 @@ namespace IntelligentKioskSample.Controls
                 img.UpdateDecodedImageSize(this.bitmapImage.PixelHeight, this.bitmapImage.PixelWidth);
             }
 
+            if(this.DetectObjectLandMarks)
+            {
+                await this.DetectObjectsCustomVisionAndShowObjectBorders();
+            }
+
             if (this.ShowEmotionRecognition)
             {
                 await this.DetectAndShowEmotion();
@@ -560,6 +582,53 @@ namespace IntelligentKioskSample.Controls
             {
                 await this.DetectAndShowComputerVisionAnalysis();
             }
+        }
+
+        private async Task DetectObjectsCustomVisionAndShowObjectBorders()
+        {
+            this.progressIndicator.IsActive = true;
+            ImageAnalyzer img = this.DataContext as ImageAnalyzer;
+
+            foreach (var child in this.hostGrid.Children.Where(c => !(c is Image)).ToArray())
+            {
+                this.hostGrid.Children.Remove(child);
+            }
+
+            double renderedImageXTransform = this.imageControl.RenderSize.Width / this.bitmapImage.PixelWidth;
+            double renderedImageYTransform = this.imageControl.RenderSize.Height / this.bitmapImage.PixelHeight;
+
+            if (img != null)
+            {
+                //call the service to get the data aboit the objects in the image, like a matchbox may be
+                Windows.Storage.StorageFolder storageFolder =  Windows.Storage.ApplicationData.Current.LocalFolder;
+                File.WriteAllBytes(storageFolder.Path + "\\temp1.jpg", img.Data);
+                img.LocalImagePath = storageFolder.Path + "\\temp1.jpg";
+                ImagePrediction DetectedObjects = await CustomObjectDetectionHelper.AnalyzeImageAsync(img.LocalImagePath);
+                //add a free form canvas to the grid
+                Canvas baseCanvas = new Canvas();
+                foreach (var tagInfo in DetectedObjects.Predictions)
+                {
+                    if (tagInfo.Probability >= 0.6)
+                    {
+                        FaceIdentificationBorder faceUI = new FaceIdentificationBorder()
+                        {
+                            Tag = tagInfo.TagId,
+                        };
+
+                        faceUI.Margin = new Thickness((tagInfo.BoundingBox.Left * 1000 * renderedImageYTransform)*2,
+                                                      (tagInfo.BoundingBox.Top * 1000 * renderedImageYTransform), 0, 0);
+
+                        faceUI.BalloonBackground = this.BalloonBackground;
+                        faceUI.BalloonForeground = this.BalloonForeground;
+                        faceUI.ShowFaceRectangle(tagInfo.BoundingBox.Width * 1000 * renderedImageXTransform * 2, tagInfo.BoundingBox.Height * 1000 * renderedImageYTransform * 2);
+
+                        this.hostGrid.Children.Add(faceUI);
+                    }
+                }
+                this.hostGrid.Visibility = Visibility.Visible;
+            }
+
+            this.progressIndicator.IsActive = false;
         }
 
         private async void OnBitmapImageOpened(object sender, RoutedEventArgs e)
